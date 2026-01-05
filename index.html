@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labirent Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ANA MENÜ EKRANI -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <h1>🎮 LABİRENT PRO</h1>
+            <p>Algoritma destekli macera oyununa hoş geldiniz!<br>BFS ve DFS ile yolunuzu bulun, düşmanlardan kaçın!</p>
+            <button class="btn btn-primary" onclick="showDifficultyModal()">🎯 Oyuna Başla</button>
+            <button class="btn btn-secondary" onclick="showScoreModal()">🏆 Skorlar</button>
+            <button class="btn btn-secondary" onclick="showMapsModal()">🗺️ Haritalarım</button>
+            <button class="btn btn-secondary" onclick="showTournamentModal()">🏁 Yarışma</button>
+            <button class="btn btn-secondary" onclick="showInfoModal()">ℹ️ Nasıl Oynanır</button>
+        </div>
+
+        <!-- OYUN EKRANI -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-header">
+                <div class="game-title">🎮 LABİRENT PRO</div>
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-icon">👣</span>
+                        <span id="stepCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">⚡</span>
+                        <span id="energyCount">100</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">⏱️</span>
+                        <span id="timeCount">0.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🎁</span>
+                        <span id="bonusCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <div class="canvas-container">
+                    <canvas id="gameCanvas"></canvas>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #00ff00;"></div>
+                            <span>Başlangıç</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ff0000;"></div>
+                            <span>Bitiş</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ffff00;"></div>
+                            <span>Sen</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #8b0000;"></div>
+                            <span>Düşman</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ffd700;"></div>
+                            <span>Bonus</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ff8800;"></div>
+                            <span>Tuzak</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <h3>🎮 Hareket</h3>
+                        <div class="direction-pad">
+                            <div class="dir-btn empty"></div>
+                            <button class="dir-btn" onclick="movePlayer(0, -1)">▲</button>
+                            <div class="dir-btn empty"></div>
+                            <button class="dir-btn" onclick="movePlayer(-1, 0)">◀</button>
+                            <div class="dir-btn empty"></div>
+                            <button class="dir-btn" onclick="movePlayer(1, 0)">▶</button>
+                            <div class="dir-btn empty"></div>
+                            <button class="dir-btn" onclick="movePlayer(0, 1)">▼</button>
+                            <div class="dir-btn empty"></div>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <h3>🔧 Araçlar</h3>
+                        <button class="control-btn" onclick="cozumBFS()">🔵 BFS Çözümü</button>
+                        <button class="control-btn" onclick="cozumDFS()">🟣 DFS Çözümü</button>
+                        <button class="control-btn" onclick="haritaOlustur(); startGame()">🔄 Yeni Harita</button>
+                        <button class="control-btn" onclick="saveCurrentMap()">💾 Haritayı Kaydet</button>
+                    </div>
+
+                    <div class="control-group">
+                        <button class="control-btn" style="background: #ff6b6b; color: white; border-color: #ff6b6b;" onclick="backToMenu()">◀ Ana Menü</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ZORLUK SEÇİMİ MODAL -->
+    <div class="modal" id="difficultyModal">
+        <div class="modal-content">
+            <h2>Zorluk Seviyesi Seçin</h2>
+            <div class="difficulty-options">
+                <div class="difficulty-card easy" onclick="selectDifficulty(0)">
+                    <h4>😊 Kolay</h4>
+                    <p>Az düşman<br>Çok enerji<br>Geniş görüş</p>
+                </div>
+                <div class="difficulty-card medium selected" onclick="selectDifficulty(1)">
+                    <h4>😐 Orta</h4>
+                    <p>Orta düşman<br>Normal enerji<br>Normal görüş</p>
+                </div>
+                <div class="difficulty-card hard" onclick="selectDifficulty(2)">
+                    <h4>😈 Zor</h4>
+                    <p>Çok düşman<br>Az enerji<br>Dar görüş</p>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="startGameWithDifficulty()">Oyuna Başla</button>
+            <button class="btn btn-secondary" onclick="closeModal('difficultyModal')">İptal</button>
+        </div>
+    </div>
+
+    <!-- SKOR TABLOSU MODAL -->
+    <div class="modal" id="scoreModal">
+        <div class="modal-content">
+            <h2>🏆 En Yüksek Skorlar</h2>
+            <div class="score-table" id="scoreTable">
+                <p style="text-align: center; color: #999;">Henüz skor yok. Oynamaya başlayın!</p>
+            </div>
+            <button class="btn btn-primary" onclick="closeModal('scoreModal')">Kapat</button>
+        </div>
+    </div>
+
+    <!-- HARİTALARIM MODAL -->
+    <div class="modal" id="mapsModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <h2>🗺️ Kayıtlı Haritalarım</h2>
+            <div class="maps-list" id="mapsList">
+                <p style="text-align: center; color: #999;">Henüz kayıtlı harita yok.</p>
+            </div>
+            <button class="btn btn-primary" onclick="closeModal('mapsModal')">Kapat</button>
+        </div>
+    </div>
+
+    <!-- HARİTA GÖRÜNTÜLEME MODAL -->
+    <div class="modal" id="mapViewModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <h2 id="mapViewTitle">🗺️ Harita Görünümü</h2>
+            <canvas id="mapViewCanvas" style="border: 3px solid #e0e0e0; border-radius: 10px; max-width: 100%;"></canvas>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="playSelectedMap()">🎮 Bu Haritada Oyna</button>
+                <button class="btn btn-secondary" onclick="closeModal('mapViewModal')">Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- YARIŞMA MODAL -->
+    <div class="modal" id="tournamentModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2>🏁 Yarışma Modu</h2>
+            
+            <!-- Oyuncu Sayısı Seçimi -->
+            <div id="tournamentSetup">
+                <p style="margin: 20px 0;">Kaç oyuncu yarışacak?</p>
+                <input type="number" id="playerCount" min="2" max="10" value="2" 
+                       style="padding: 10px; font-size: 16px; border-radius: 10px; border: 2px solid #e0e0e0; width: 100px; text-align: center;">
+                <button class="btn btn-primary" style="margin-top: 20px;" onclick="setupTournamentPlayers()">Devam Et</button>
+            </div>
+            
+            <!-- Oyuncu İsim Girişi -->
+            <div id="tournamentPlayers" style="display: none;">
+                <p style="margin: 20px 0;">Oyuncu İsimlerini Girin:</p>
+                <div id="playerNamesInput"></div>
+                <button class="btn btn-primary" style="margin-top: 20px;" onclick="startTournament()">Yarışmayı Başlat</button>
+            </div>
+            
+            <!-- Yarışma İlerleyişi -->
+            <div id="tournamentProgress" style="display: none;">
+                <div id="tournamentInfo" style="margin: 20px 0; font-size: 18px;"></div>
+                <div id="tournamentScores" style="margin: 20px 0;"></div>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="closeModal('tournamentModal'); resetTournament()">Kapat</button>
+        </div>
+    </div>
+
+    <!-- BİLGİ MODAL -->
+    <div class="modal" id="infoModal">
+        <div class="modal-content">
+            <h2>ℹ️ Nasıl Oynanır?</h2>
+            <div style="text-align: left; margin: 20px 0;">
+                <p style="margin: 10px 0;"><strong>🎯 Amaç:</strong> Yeşil başlangıçtan kırmızı bitişe ulaşın!</p>
+                <p style="margin: 10px 0;"><strong>🎮 Kontroller:</strong> Yön tuşlarını kullanarak hareket edin.</p>
+                <p style="margin: 10px 0;"><strong>⚡ Enerji:</strong> Her adımda enerji harcanır. Biterse oyun biter!</p>
+                <p style="margin: 10px 0;"><strong>🎁 Bonus:</strong> Altın kareler enerji ve puan verir.</p>
+                <p style="margin: 10px 0;"><strong>⚠️ Tuzak:</strong> Turuncu kareler enerji düşürür!</p>
+                <p style="margin: 10px 0;"><strong>👾 Düşman:</strong> Kırmızı toplardan kaçın!</p>
+                <p style="margin: 10px 0;"><strong>🔵 BFS/🟣 DFS:</strong> Algoritma çözümlerini görebilirsiniz.</p>
+                <p style="margin: 10px 0;"><strong>💾 Harita Kaydet:</strong> Beğendiğiniz haritaları kaydedin!</p>
+                <p style="margin: 10px 0;"><strong>🏁 Yarışma:</strong> Arkadaşlarınızla yarışın, her oyuncu 3 tur oynar!</p>
+            </div>
+            <button class="btn btn-primary" onclick="closeModal('infoModal')">Anladım!</button>
+        </div>
+    </div>
+
+    <!-- OYUN SONU MODAL -->
+    <div class="modal" id="gameEndModal">
+        <div class="modal-content">
+            <h2 id="endTitle">🎉 KAZANDIN!</h2>
+            <p id="endMessage"></p>
+            <div id="endStats" style="margin: 20px 0;"></div>
+            
+            <!-- Yarışma Modunda Gösterilecek Butonlar -->
+            <div id="tournamentButtons" style="display: none;">
+                <button class="btn btn-primary" onclick="continueToNextRound()">Sonraki Tur</button>
+            </div>
+            
+            <!-- Normal Modda Gösterilecek Butonlar -->
+            <div id="normalButtons">
+                <button class="btn btn-primary" onclick="closeModal('gameEndModal'); backToMenu()">Ana Menü</button>
+                <button class="btn btn-secondary" onclick="closeModal('gameEndModal'); haritaOlustur(); startGame()">Yeni Oyun</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
